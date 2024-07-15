@@ -8,6 +8,7 @@ export enum AuthMessage {
   AlreadyExistAccount = 'حساب کاربری تکراری می باشد',
   ExpiredCode = 'کد تایید منقضی شده مجدد تلاش کنید',
   LoginAgain = 'مجدد وارد حساب کاربری خود شوید',
+  LoginIsRequired = 'وارد حساب کاربری خود شوید',
 }
 export enum PublicMessage {
   SendOtp = 'کد یکبار مصرف با موفقیت ارسال شد',
