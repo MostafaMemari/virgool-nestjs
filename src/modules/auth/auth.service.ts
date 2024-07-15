@@ -101,7 +101,15 @@ export class AuthService {
   async checkOtp(code: string) {
     const token = this.request.cookies?.[CookieKeys.OTP];
     if (!token) throw new UnauthorizedException(AuthMessage.ExpiredCode);
-    return token;
+    const { userId } = this.tokenService.verifyOtpToken(token);
+    const otp = await this.otpRepository.findOneBy({ userId });
+    if (!otp) throw new UnauthorizedException(AuthMessage.TryAgain);
+    const now = new Date();
+    if (otp.expiresIn < now) throw new UnauthorizedException(AuthMessage.ExpiredCode);
+    if (otp.code !== code) throw new UnauthorizedException(AuthMessage.LoginAgain);
+    return {
+      message: PublicMessage.LoggedIn,
+    };
   }
 
   async saveOtp(userId: number) {
