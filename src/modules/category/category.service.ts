@@ -6,6 +6,7 @@ import { CategoryEntity } from './entities/category.entity';
 import { Repository } from 'typeorm';
 import { ConflictMessage, PublicMessage } from 'src/common/enums/message.enum';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
+import { paginationGenerator, paginationSolver } from 'src/common/utils/pagination.util';
 
 @Injectable()
 export class CategoryService {
@@ -36,8 +37,16 @@ export class CategoryService {
   }
 
   async findAll(paginationDto: PaginationDto) {
-    console.log(paginationDto);
-    return this.categoryRepository.findBy({});
+    const { limit, page, skip } = paginationSolver(paginationDto);
+    const [categories, count] = await this.categoryRepository.findAndCount({
+      where: {},
+      skip,
+      take: limit,
+    });
+    return {
+      pagination: paginationGenerator(count, page, limit),
+      categories,
+    };
   }
 
   findOne(id: number) {
