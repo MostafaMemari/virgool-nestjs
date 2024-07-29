@@ -1,6 +1,4 @@
 import { Inject, Injectable, Scope } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
 import { ProfileDto } from './dto/profile.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from './entities/user.entity';
@@ -11,6 +9,7 @@ import { Request } from 'express';
 import { isDate } from 'class-validator';
 import { Gender } from './enum/gender.enum';
 import { ProfileImages } from './types/files';
+import { PublicMessage } from 'src/common/enums/message.enum';
 
 @Injectable({ scope: Scope.REQUEST })
 export class UserService {
@@ -42,7 +41,7 @@ export class UserService {
     } = profileDto;
     if (profile) {
       if (bio) profile.bio = bio;
-      if (birthday && isDate(birthday)) profile.birthday = birthday;
+      if (birthday && isDate(new Date(birthday))) profile.birthday = birthday;
       if (gender && Object.values(Gender as any).includes(gender)) profile.gender = gender;
       if (nick_name) profile.nick_name = nick_name;
       if (linkedin_profile) profile.linkedin_profile = linkedin_profile;
@@ -51,10 +50,10 @@ export class UserService {
       if (bg_image) profile.bg_image = bg_image;
     } else {
       profile = this.profileRepository.create({
+        nick_name,
         bio,
         birthday,
         gender,
-        nick_name,
         linkedin_profile,
         x_profile,
         userId,
@@ -66,6 +65,9 @@ export class UserService {
     if (!profileId) {
       await this.userRepository.update({ id: userId }, { profileId: profile.id });
     }
+    return {
+      message: PublicMessage.Updated,
+    };
   }
 
   profile() {

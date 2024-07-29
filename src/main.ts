@@ -9,7 +9,7 @@ async function bootstrap() {
   const { PORT, COOKIE_SECRET } = process.env;
 
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
-  // app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
+  app.useGlobalPipes(new ValidationPipe());
 
   app.useStaticAssets('public');
   SwaggerConfigInit(app);
