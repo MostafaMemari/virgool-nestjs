@@ -28,4 +28,6 @@ export enum NotFoundMessage {
   NotFoundPost = 'دسته بندی یافت نشد',
   NotFoundUser = 'کاربری یافت نشد',
 }
-export enum ValidationMessage {}
+export enum ValidationMessage {
+  InvalidImageFormat = 'فرمت تصویر انتخاب شده باید از jpg و png باشد',
+}

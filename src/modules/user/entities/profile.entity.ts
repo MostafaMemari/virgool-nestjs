@@ -8,7 +8,7 @@ export class ProfileEntity extends BaseEntity {
   @Column()
   userId: number;
 
-  @Column()
+  @Column({ nullable: true })
   nick_name: string;
 
   @Column({ nullable: true })
