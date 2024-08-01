@@ -111,7 +111,6 @@ export class UserService {
       token,
     };
   }
-
   async verifyEmail(code: string) {
     const { id: userId, new_email } = this.request.user;
     const token = this.request.cookies?.[CookieKeys.EmailOTP];
@@ -131,6 +130,51 @@ export class UserService {
         email,
         verify_email: true,
         new_email: null,
+      },
+    );
+    return {
+      message: PublicMessage.Updated,
+    };
+  }
+
+  async changePhone(phone: string) {
+    const { id } = this.request.user;
+    const user = await this.userRepository.findOneBy({ phone });
+    if (user && user?.id !== id) {
+      throw new ConflictException(ConflictMessage.Phone);
+    } else if (user && user.id == id) {
+      return {
+        message: PublicMessage.Updated,
+      };
+    }
+
+    await this.userRepository.update({ id }, { new_phone: phone });
+    const otp = await this.authService.saveOtp(id, AuthMethod.Phone);
+    const token = this.tokenService.createPhoneToken({ phone });
+    return {
+      code: otp.code,
+      token,
+    };
+  }
+  async verifyPhone(code: string) {
+    const { id: userId, new_phone } = this.request.user;
+    const token = this.request.cookies?.[CookieKeys.PhoneOTP];
+    if (!token) throw new BadRequestException(AuthMessage.ExpiredCode);
+    const { phone } = this.tokenService.verifyPhoneToken(token);
+    if (phone !== new_phone) {
+      throw new BadRequestException(BadRequestMessage.SomeThingWrong);
+    }
+    const otp = await this.checkOtp(userId, code);
+    if (otp.method !== AuthMethod.Phone) {
+      throw new BadRequestException(BadRequestMessage.SomeThingWrong);
+    }
+
+    await this.userRepository.update(
+      { id: userId },
+      {
+        phone,
+        verify_phone: true,
+        new_phone: null,
       },
     );
     return {

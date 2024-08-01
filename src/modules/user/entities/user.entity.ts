@@ -19,10 +19,13 @@ export class UserEntity extends BaseEntity {
   email: string;
 
   @Column({ type: 'varchar', nullable: true })
-  new_email?: string | null;
+  new_email: string | null;
 
   @Column({ nullable: true })
   verify_email: boolean;
+
+  @Column({ type: 'varchar', nullable: true })
+  new_phone: string | null;
 
   @Column({ nullable: true })
   verify_phone: boolean;
