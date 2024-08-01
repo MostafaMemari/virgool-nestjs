@@ -18,6 +18,15 @@ export class UserEntity extends BaseEntity {
   @Column({ unique: true, nullable: true })
   email: string;
 
+  @Column({ type: 'varchar', nullable: true })
+  new_email?: string | null;
+
+  @Column({ nullable: true })
+  verify_email: boolean;
+
+  @Column({ nullable: true })
+  verify_phone: boolean;
+
   @CreateDateColumn()
   created_at: Date;
 
@@ -26,6 +35,7 @@ export class UserEntity extends BaseEntity {
 
   @Column({ nullable: true })
   otpId: number;
+
   @OneToOne(() => OtpEntity, (otp) => otp.user, { nullable: true })
   @JoinColumn()
   otp: OtpEntity;
