@@ -13,7 +13,7 @@ import {
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { ApiBearerAuth, ApiConsumes, ApiTags } from '@nestjs/swagger';
-import { ChangeEmailDto, ChangePhoneDto, ProfileDto } from './dto/profile.dto';
+import { ChangeEmailDto, ChangePhoneDto, ChangeUsernameDto, ProfileDto } from './dto/profile.dto';
 import { SwaggerConsumes } from 'src/common/enums/swagger-consumes.enum';
 import { FileFieldsInterceptor, FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
@@ -56,11 +56,13 @@ export class UserController {
   }
 
   @Get('/profile')
+  @ApiConsumes(SwaggerConsumes.UrlEncoded, SwaggerConsumes.Json)
   profile() {
     return this.userService.profile();
   }
 
   @Patch('/change-email')
+  @ApiConsumes(SwaggerConsumes.UrlEncoded, SwaggerConsumes.Json)
   async changeEmail(@Body() emailDto: ChangeEmailDto, @Res() res: Response) {
     const { code, token, message } = await this.userService.changeEmail(emailDto.email);
     if (message) return res.json(message);
@@ -72,11 +74,13 @@ export class UserController {
   }
 
   @Post('/verify-email-otp')
+  @ApiConsumes(SwaggerConsumes.UrlEncoded, SwaggerConsumes.Json)
   async verifyEmail(@Body() otpDto: CheckOtpDto) {
     return this.userService.verifyEmail(otpDto.code);
   }
 
   @Patch('/change-phone')
+  @ApiConsumes(SwaggerConsumes.UrlEncoded, SwaggerConsumes.Json)
   async changePhone(@Body() phoneDto: ChangePhoneDto, @Res() res: Response) {
     const { code, token, message } = await this.userService.changePhone(phoneDto.phone);
     if (message) return res.json(message);
@@ -88,7 +92,14 @@ export class UserController {
   }
 
   @Post('/verify-phone-otp')
+  @ApiConsumes(SwaggerConsumes.UrlEncoded, SwaggerConsumes.Json)
   async verifyPhone(@Body() otpDto: CheckOtpDto) {
     return this.userService.verifyPhone(otpDto.code);
+  }
+
+  @Patch('/change-username')
+  @ApiConsumes(SwaggerConsumes.UrlEncoded, SwaggerConsumes.Json)
+  changeUsername(@Body() usernameDto: ChangeUsernameDto) {
+    return this.userService.changeUsername(usernameDto.username);
   }
 }

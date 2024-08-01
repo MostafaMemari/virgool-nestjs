@@ -1,5 +1,5 @@
 import { BadRequestException, ConflictException, Inject, Injectable, Scope } from '@nestjs/common';
-import { ProfileDto } from './dto/profile.dto';
+import { ChangeUsernameDto, ProfileDto } from './dto/profile.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from './entities/user.entity';
 import { Repository } from 'typeorm';
@@ -180,6 +180,21 @@ export class UserService {
     return {
       message: PublicMessage.Updated,
     };
+  }
+
+  async changeUsername(username: string) {
+    const { id } = this.request.user;
+    const user = await this.userRepository.findOneBy({ username });
+    if (user && user?.id !== id) {
+      throw new ConflictException(ConflictMessage.Username);
+    } else if (user && user.id == id) {
+      return {
+        message: PublicMessage.Updated,
+      };
+    }
+
+    await this.userRepository.update({ id }, { username });
+    return { message: PublicMessage.Updated };
   }
 
   async checkOtp(userId: number, code: string) {
