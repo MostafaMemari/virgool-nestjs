@@ -1,34 +1,33 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsEnum, IsNotEmpty, Length } from 'class-validator';
+import { IsEnum, IsNotEmpty, IsNumber, IsNumberString, Length } from 'class-validator';
 import { BlogStatus } from '../enum/status.enum';
 
 export class CreateBlogDto {
-  @ApiProperty()
+  @ApiProperty({ example: '' })
   @IsNotEmpty()
   @Length(10, 100)
   title: string;
 
-  @ApiPropertyOptional({ format: 'binary' })
+  @ApiPropertyOptional({ example: '' })
   image: string;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: '' })
   slug: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: '' })
   @IsNotEmpty()
-  time_for_study: string;
+  @IsNumberString()
+  time_for_study: number;
 
-  @ApiProperty()
+  @ApiProperty({ example: '' })
   @IsNotEmpty()
   @Length(10, 100)
   content: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: '' })
   @IsNotEmpty()
   @Length(10, 300)
   description: string;
 
-  @ApiProperty()
-  @IsEnum(BlogStatus)
   status: string;
 }
