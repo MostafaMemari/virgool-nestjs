@@ -41,6 +41,18 @@ export class BlogService {
     };
   }
 
+  async myBlog() {
+    const { id } = this.request.user;
+    return this.blogRepository.find({
+      where: {
+        auhtorId: id,
+      },
+      order: {
+        id: 'DESC',
+      },
+    });
+  }
+
   async checkBlogBySlug(slug: string) {
     const blog = await this.blogRepository.findOneBy({ slug });
     return !!blog;
