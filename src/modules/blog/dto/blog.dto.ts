@@ -31,3 +31,7 @@ export class CreateBlogDto {
 
   status: string;
 }
+
+export class FilterBlogDto {
+  search: string;
+}
