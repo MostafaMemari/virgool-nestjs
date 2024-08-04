@@ -15,11 +15,13 @@ import { CategoryEntity } from '../category/entities/category.entity';
 import { CategoryService } from '../category/category.service';
 import { BlogCategoryEntity } from './entities/blog-category.entity';
 import { EntityName } from 'src/common/enums/entity.enum';
+import { BlogLikesEntity } from './entities/like.entity';
 
 @Injectable({ scope: Scope.REQUEST })
 export class BlogService {
   constructor(
     @InjectRepository(BlogEntity) private blogRepository: Repository<BlogEntity>,
+    @InjectRepository(BlogLikesEntity) private blogLikeRepository: Repository<BlogLikesEntity>,
     @InjectRepository(BlogCategoryEntity)
     private blogCategoryRepository: Repository<BlogCategoryEntity>,
     @Inject(REQUEST) private request: Request,
@@ -218,5 +220,22 @@ export class BlogService {
     return {
       message: PublicMessage.Updated,
     };
+  }
+
+  async likeToggle(blogId: number) {
+    const { id: userId } = this.request.user;
+    await this.checkExistBlogById(blogId);
+    const isLiked = await this.blogLikeRepository.findOneBy({ userId, blogId });
+    let message = PublicMessage.Like;
+    if (isLiked) {
+      await this.blogLikeRepository.delete({ id: isLiked.id });
+      message = PublicMessage.DisLike;
+    } else {
+      await this.blogLikeRepository.insert({
+        blogId,
+        userId,
+      });
+    }
+    return { message };
   }
 }
