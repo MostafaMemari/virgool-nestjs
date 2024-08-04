@@ -16,12 +16,15 @@ import { CategoryService } from '../category/category.service';
 import { BlogCategoryEntity } from './entities/blog-category.entity';
 import { EntityName } from 'src/common/enums/entity.enum';
 import { BlogLikesEntity } from './entities/like.entity';
+import { BlogBookmarkEntity } from './entities/bookmark.entity';
 
 @Injectable({ scope: Scope.REQUEST })
 export class BlogService {
   constructor(
     @InjectRepository(BlogEntity) private blogRepository: Repository<BlogEntity>,
     @InjectRepository(BlogLikesEntity) private blogLikeRepository: Repository<BlogLikesEntity>,
+    @InjectRepository(BlogBookmarkEntity)
+    private blogBookmarkRepository: Repository<BlogBookmarkEntity>,
     @InjectRepository(BlogCategoryEntity)
     private blogCategoryRepository: Repository<BlogCategoryEntity>,
     @Inject(REQUEST) private request: Request,
@@ -124,7 +127,7 @@ export class BlogService {
       ])
       .where(where, { category, search })
       .loadRelationCountAndMap('blog.likes', 'blog.likes')
-      // .loadRelationCountAndMap('blog.bookmarks', 'blog.bookmarks')
+      .loadRelationCountAndMap('blog.bookmarks', 'blog.bookmarks')
       // .loadRelationCountAndMap('blog.comments', 'blog.comments', 'comments', (qb) =>
       //   qb.where('comments.accepted = :accepted', { accepted: true }),
       // )
@@ -245,6 +248,23 @@ export class BlogService {
       message = PublicMessage.DisLike;
     } else {
       await this.blogLikeRepository.insert({
+        blogId,
+        userId,
+      });
+    }
+    return { message };
+  }
+
+  async bookmarkToggle(blogId: number) {
+    const { id: userId } = this.request.user;
+    await this.checkExistBlogById(blogId);
+    const isBookmarked = await this.blogBookmarkRepository.findOneBy({ userId, blogId });
+    let message = PublicMessage.Bookmark;
+    if (isBookmarked) {
+      await this.blogBookmarkRepository.delete({ id: isBookmarked.id });
+      message = PublicMessage.UnBookmark;
+    } else {
+      await this.blogBookmarkRepository.insert({
         blogId,
         userId,
       });
