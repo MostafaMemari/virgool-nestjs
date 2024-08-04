@@ -1,4 +1,4 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional, PartialType } from '@nestjs/swagger';
 import { IsArray, IsEnum, IsNotEmpty, IsNumber, IsNumberString, Length } from 'class-validator';
 import { BlogStatus } from '../enum/status.enum';
 
@@ -35,6 +35,7 @@ export class CreateBlogDto {
   // @IsArray()
   categories: string[] | string;
 }
+export class UpdateBlogDto extends PartialType(CreateBlogDto) {}
 
 export class FilterBlogDto {
   category: string;
