@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsEnum, IsNotEmpty, IsNumber, IsNumberString, Length } from 'class-validator';
+import { IsArray, IsEnum, IsNotEmpty, IsNumber, IsNumberString, Length } from 'class-validator';
 import { BlogStatus } from '../enum/status.enum';
 
 export class CreateBlogDto {
@@ -30,8 +30,12 @@ export class CreateBlogDto {
   description: string;
 
   status: string;
+
+  @ApiProperty({ type: String, isArray: true })
+  // @IsArray()
+  categories: string[] | string;
 }
 
 export class FilterBlogDto {
-  search: string;
+  category: string;
 }

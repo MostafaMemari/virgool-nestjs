@@ -8,5 +8,5 @@ export class CreateCategoryDto {
 
   @ApiPropertyOptional()
   @IsOptional()
-  priority: number;
+  priority: number | null;
 }
