@@ -38,4 +38,5 @@ export class CreateBlogDto {
 
 export class FilterBlogDto {
   category: string;
+  search: string;
 }
