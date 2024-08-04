@@ -8,7 +8,7 @@ export class CategoryEntity extends BaseEntity {
   @Column()
   title: string;
 
-  @Column({ type: 'int', nullable: true })
+  @Column({ type: 'integer', nullable: true })
   priority: number | null;
 
   @OneToMany(() => BlogCategoryEntity, (blog) => blog.category)

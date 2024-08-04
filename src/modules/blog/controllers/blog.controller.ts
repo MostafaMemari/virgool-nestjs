@@ -10,11 +10,11 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { BlogService } from './blog.service';
-import { CreateBlogDto, FilterBlogDto, UpdateBlogDto } from './dto/blog.dto';
+import { BlogService } from '../services/blog.service';
+import { CreateBlogDto, FilterBlogDto, UpdateBlogDto } from '../dto/blog.dto';
 import { ApiBearerAuth, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { SwaggerConsumes } from 'src/common/enums/swagger-consumes.enum';
-import { AuthGuard } from '../auth/guards/auth.guard';
+import { AuthGuard } from '../../auth/guards/auth.guard';
 import { Pagination } from 'src/common/decorators/pagination.decorator';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
 import { SkipAuth } from 'src/common/decorators/skip-auth.decorator';

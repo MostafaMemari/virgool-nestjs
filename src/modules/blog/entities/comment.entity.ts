@@ -13,11 +13,12 @@ export class BlogCommentEntity extends BaseEntity {
 
   @Column()
   blogId: number;
+
   @Column()
   userId: number;
 
-  @Column()
-  parentId: number;
+  @Column({ type: 'integer', nullable: true })
+  parentId: number | null;
 
   @ManyToOne(() => UserEntity, (user) => user.blog_comments, { onDelete: 'CASCADE' })
   user: UserEntity;
