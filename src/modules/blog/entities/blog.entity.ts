@@ -28,7 +28,7 @@ export class BlogEntity extends BaseEntity {
   time_for_study: number;
 
   @Column()
-  auhtorId: number;
+  authorId: number;
 
   @ManyToOne(() => UserEntity, (user) => user.blogs, { onDelete: 'CASCADE' })
   author: UserEntity;
