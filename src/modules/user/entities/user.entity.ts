@@ -1,20 +1,13 @@
 import { BaseEntity } from 'src/common/abstracts/base.entity';
 import { EntityName } from 'src/common/enums/entity.enum';
-import {
-  Column,
-  CreateDateColumn,
-  Entity,
-  JoinColumn,
-  OneToMany,
-  OneToOne,
-  UpdateDateColumn,
-} from 'typeorm';
+import { Column, CreateDateColumn, Entity, JoinColumn, OneToMany, OneToOne, UpdateDateColumn } from 'typeorm';
 import { OtpEntity } from './otp.entity';
 import { ProfileEntity } from './profile.entity';
 import { BlogEntity } from 'src/modules/blog/entities/blog.entity';
 import { BlogLikesEntity } from 'src/modules/blog/entities/like.entity';
 import { BlogBookmarkEntity } from 'src/modules/blog/entities/bookmark.entity';
 import { BlogCommentEntity } from 'src/modules/blog/entities/comment.entity';
+import { ImageEntity } from 'src/modules/image/entities/image.entity';
 
 @Entity(EntityName.User)
 export class UserEntity extends BaseEntity {
@@ -59,6 +52,9 @@ export class UserEntity extends BaseEntity {
 
   @OneToMany(() => BlogBookmarkEntity, (bookmark) => bookmark.user)
   blog_bookmarks: BlogBookmarkEntity[];
+
+  @OneToMany(() => ImageEntity, (image) => image.user)
+  images: ImageEntity[];
 
   @OneToMany(() => BlogCommentEntity, (comment) => comment.user)
   blog_comments: BlogCommentEntity[];
