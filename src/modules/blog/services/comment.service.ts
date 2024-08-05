@@ -8,6 +8,8 @@ import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
 import { BlogService } from './blog.service';
 import { PublicMessage } from 'src/common/enums/message.enum';
+import { PaginationDto } from 'src/common/dtos/pagination.dto';
+import { paginationGenerator, paginationSolver } from 'src/common/utils/pagination.util';
 
 @Injectable({ scope: Scope.REQUEST })
 export class BlogCommentService {
@@ -39,6 +41,35 @@ export class BlogCommentService {
 
     return {
       message: PublicMessage.CreatedComment,
+    };
+  }
+
+  async find(paginationDto: PaginationDto) {
+    const { limit, page, skip } = paginationSolver(paginationDto);
+    const [comments, count] = await this.blogCommentRepository.findAndCount({
+      where: {},
+      relations: {
+        blog: true,
+        user: { profile: true },
+      },
+      select: {
+        blog: {
+          title: true,
+        },
+        user: {
+          username: true,
+          profile: {
+            nick_name: true,
+          },
+        },
+      },
+      skip,
+      take: limit,
+      order: { id: 'DESC' },
+    });
+    return {
+      pagination: paginationGenerator(count, page, limit),
+      comments,
     };
   }
 }
