@@ -1,15 +1,4 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Param,
-  ParseIntPipe,
-  Post,
-  Put,
-  Query,
-  UseGuards,
-} from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, Query, UseGuards } from '@nestjs/common';
 import { BlogService } from '../services/blog.service';
 import { CreateBlogDto, FilterBlogDto, UpdateBlogDto } from '../dto/blog.dto';
 import { ApiBearerAuth, ApiConsumes, ApiTags } from '@nestjs/swagger';
@@ -44,6 +33,11 @@ export class BlogController {
   @FilterBlog()
   find(@Query() paginationDto: PaginationDto, @Query() filterDto: FilterBlogDto) {
     return this.blogService.blogList(paginationDto, filterDto);
+  }
+
+  @Get('/by-slug/:slug')
+  findOneBySlug(@Param('slug') slug: string) {
+    return this.blogService.findOneBySlug(slug);
   }
 
   @Get('/like/:id')

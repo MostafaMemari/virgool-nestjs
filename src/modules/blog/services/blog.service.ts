@@ -119,13 +119,7 @@ export class BlogService {
       .leftJoin('categories.category', 'category')
       .leftJoin('blog.author', 'author')
       .leftJoin('author.profile', 'profile')
-      .addSelect([
-        'categories.id',
-        'category.title',
-        'author.username',
-        'author.id',
-        'profile.nick_name',
-      ])
+      .addSelect(['categories.id', 'category.title', 'author.username', 'author.id', 'profile.nick_name'])
       .where(where, { category, search })
       .loadRelationCountAndMap('blog.likes', 'blog.likes')
       .loadRelationCountAndMap('blog.bookmarks', 'blog.bookmarks')
@@ -271,5 +265,31 @@ export class BlogService {
       });
     }
     return { message };
+  }
+
+  async findOneBySlug(slug: string) {
+    const userId = this.request?.user?.id;
+    const blog = await this.blogRepository
+      .createQueryBuilder(EntityName.Blog)
+      .where({ slug })
+      .leftJoin('blog.categories', 'categories')
+      .leftJoin('categories.category', 'category')
+      .leftJoin('blog.author', 'author')
+      .leftJoin('author.profile', 'profile')
+      .addSelect(['categories.id', 'category.title', 'author.username', 'author.id', 'profile.nick_name'])
+      .loadRelationCountAndMap('blog.likes', 'blog.likes')
+      .loadRelationCountAndMap('blog.bookmarks', 'blog.bookmarks')
+      .leftJoinAndSelect('blog.comments', 'comments', 'comments.accepted = :accepted', { accepted: true })
+      .orderBy('blog.id', 'DESC')
+      .getOne();
+
+    if (!blog) throw new NotFoundException(NotFoundMessage.NotFound);
+
+    const isLiked = !!(await this.blogLikeRepository.findOneBy({ userId, blogId: blog.id }));
+    const isBookmarked = !!(await this.blogBookmarkRepository.findOneBy({ userId, blogId: blog.id }));
+
+    const blogData = { isLiked, isBookmarked, ...blog };
+
+    return blogData;
   }
 }
