@@ -1,4 +1,4 @@
-import { BadRequestException, ConflictException, Inject, Injectable, Scope } from '@nestjs/common';
+import { BadRequestException, ConflictException, Inject, Injectable, NotFoundException, Scope } from '@nestjs/common';
 import { ChangeUsernameDto, ProfileDto } from './dto/profile.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from './entities/user.entity';
@@ -21,6 +21,7 @@ import { AuthMethod } from '../auth/enums/method.enum';
 import { TokenService } from '../auth/tokens.service';
 import { CookieKeys } from 'src/common/enums/cookie.enum';
 import { OtpEntity } from './entities/otp.entity';
+import { FollowEntity } from './entities/follow.entity';
 
 @Injectable({ scope: Scope.REQUEST })
 export class UserService {
@@ -28,6 +29,7 @@ export class UserService {
     @InjectRepository(UserEntity) private userRepository: Repository<UserEntity>,
     @InjectRepository(ProfileEntity) private profileRepository: Repository<ProfileEntity>,
     @InjectRepository(OtpEntity) private otpRepository: Repository<OtpEntity>,
+    @InjectRepository(FollowEntity) private followRepository: Repository<FollowEntity>,
     @Inject(REQUEST) private request: Request,
     private authService: AuthService,
     private tokenService: TokenService,
@@ -43,16 +45,7 @@ export class UserService {
     }
     const { id: userId, profileId } = this.request.user;
     let profile = await this.profileRepository.findOneBy({ userId });
-    const {
-      bio,
-      birthday,
-      gender,
-      nick_name,
-      linkedin_profile,
-      x_profile,
-      bg_image,
-      image_profile,
-    } = profileDto;
+    const { bio, birthday, gender, nick_name, linkedin_profile, x_profile, bg_image, image_profile } = profileDto;
     if (profile) {
       if (bio) profile.bio = bio;
       if (birthday && isDate(new Date(birthday))) profile.birthday = birthday;
@@ -204,5 +197,26 @@ export class UserService {
     if (otp.expiresIn < now) throw new BadRequestException(AuthMessage.ExpiredCode);
     if (otp.code !== code) throw new BadRequestException(AuthMessage.TryAgain);
     return otp;
+  }
+
+  async followToggle(followingId: number) {
+    const { id: userId } = this.request.user;
+    const following = await this.userRepository.findOneBy({ id: followingId });
+    if (!following) throw new NotFoundException(NotFoundMessage.NotFoundUser);
+    const isFollowing = await this.followRepository.findOneBy({ followingId, followerId: userId });
+    let message = PublicMessage.Followed;
+    if (isFollowing) {
+      message = PublicMessage.UnFollow;
+      await this.followRepository.remove(isFollowing);
+    } else {
+      await this.followRepository.insert({ followingId, followerId: userId });
+    }
+    return {
+      message,
+    };
+  }
+
+  find() {
+    return this.userRepository.find({});
   }
 }
