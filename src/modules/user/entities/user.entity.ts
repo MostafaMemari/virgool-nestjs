@@ -43,6 +43,9 @@ export class UserEntity extends BaseEntity {
   @JoinColumn()
   otp: OtpEntity;
 
+  @Column({ type: 'varchar', nullable: true })
+  status: string | null;
+
   @Column({ nullable: true })
   profileId: number;
 

@@ -28,10 +28,12 @@ import { Response } from 'express';
 import { CookieKeys } from 'src/common/enums/cookie.enum';
 import { CookiesOptionsToken } from 'src/common/utils/cookie.util';
 import { PublicMessage } from 'src/common/enums/message.enum';
-import { CheckOtpDto } from '../auth/dto/auth.dto';
+import { CheckOtpDto, UserBlockDto } from '../auth/dto/auth.dto';
 import { AuthDecorator } from 'src/common/decorators/auth.decorator';
 import { Pagination } from 'src/common/decorators/pagination.decorator';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
+import { CanAccess } from 'src/common/decorators/role.decorator';
+import { Roles } from 'src/common/enums/role.enum';
 
 @Controller('user')
 @ApiTags('User')
@@ -131,5 +133,12 @@ export class UserController {
   @ApiConsumes(SwaggerConsumes.UrlEncoded, SwaggerConsumes.Json)
   changeUsername(@Body() usernameDto: ChangeUsernameDto) {
     return this.userService.changeUsername(usernameDto.username);
+  }
+
+  @Post('/block')
+  @CanAccess(Roles.Admin)
+  @ApiConsumes(SwaggerConsumes.UrlEncoded, SwaggerConsumes.Json)
+  async block(@Body() blockDto: UserBlockDto) {
+    return this.userService.blockToggle(blockDto);
   }
 }
