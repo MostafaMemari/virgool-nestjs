@@ -25,6 +25,7 @@ import { REQUEST } from '@nestjs/core';
 // import { KavenegarService } from './http/kavenegar.service';
 import { CookiesOptionsToken } from 'src/common/utils/cookie.util';
 import { randomId } from 'src/common/utils/functions.util';
+import { KavenegarService } from '../http/kavenegar.service';
 
 @Injectable({ scope: Scope.REQUEST })
 export class AuthService {
@@ -32,6 +33,7 @@ export class AuthService {
     @InjectRepository(UserEntity) private userRepository: Repository<UserEntity>,
     @InjectRepository(ProfileEntity) private profileRepository: Repository<ProfileEntity>,
     @InjectRepository(OtpEntity) private otpRepository: Repository<OtpEntity>,
+    private kavenegarService: KavenegarService,
     @Inject(REQUEST) private request: Request,
     private tokenService: TokenService,
     // private kavenegarService: KavenegarService,
@@ -42,11 +44,11 @@ export class AuthService {
     switch (type) {
       case AuthType.Login:
         result = await this.login(method, username);
-        // await this.sendOtp(method, username, result.code)
+        await this.sendOtp(method, username, result.code);
         return this.sendResponse(res, result);
       case AuthType.Register:
         result = await this.register(method, username);
-        // await this.sendOtp(method, username, result.code)
+        await this.sendOtp(method, username, result.code);
         return this.sendResponse(res, result);
       default:
         throw new UnauthorizedException();
@@ -61,6 +63,8 @@ export class AuthService {
     return {
       token,
       code: otp.code,
+      mobile: (method === AuthMethod.Phone && user.phone) || (method === AuthMethod.Email && user.email),
+      method,
     };
   }
   async register(method: AuthMethod, username: string) {
@@ -87,15 +91,15 @@ export class AuthService {
     if (method === AuthMethod.Email) {
       //sendEmail
     } else if (method === AuthMethod.Phone) {
-      // await this.kavenegarService.sendVerificationSms(username, code);
+      await this.kavenegarService.sendVerificationSms(username, code);
     }
   }
   async sendResponse(res: Response, result: AuthResponse) {
-    const { token, code } = result;
+    const { token } = result;
+
     res.cookie(CookieKeys.OTP, token, CookiesOptionsToken());
     res.json({
       message: PublicMessage.SendOtp,
-      code,
     });
   }
   async saveOtp(userId: number, method: AuthMethod) {
