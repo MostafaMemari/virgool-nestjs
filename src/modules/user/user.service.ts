@@ -22,6 +22,7 @@ import { TokenService } from '../auth/tokens.service';
 import { CookieKeys } from 'src/common/enums/cookie.enum';
 import { OtpEntity } from './entities/otp.entity';
 import { FollowEntity } from './entities/follow.entity';
+import { EntityName } from 'src/common/enums/entity.enum';
 
 @Injectable({ scope: Scope.REQUEST })
 export class UserService {
@@ -79,10 +80,17 @@ export class UserService {
 
   profile() {
     const { id } = this.request.user;
-    return this.userRepository.findOne({
-      where: { id },
-      relations: ['profile'],
-    });
+    // return this.userRepository.findOne({
+    //   where: { id },
+    //   relations: ['profile'],
+    // });
+    return this.userRepository
+      .createQueryBuilder(EntityName.User)
+      .where({ id })
+      .leftJoinAndSelect('user.profile', 'profile')
+      .loadRelationCountAndMap('user.followers', 'user.followers')
+      .loadRelationCountAndMap('user.following', 'user.following')
+      .getOne();
   }
 
   async changeEmail(email: string) {
