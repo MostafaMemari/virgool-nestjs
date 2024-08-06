@@ -23,6 +23,8 @@ import { CookieKeys } from 'src/common/enums/cookie.enum';
 import { OtpEntity } from './entities/otp.entity';
 import { FollowEntity } from './entities/follow.entity';
 import { EntityName } from 'src/common/enums/entity.enum';
+import { PaginationDto } from 'src/common/dtos/pagination.dto';
+import { paginationGenerator, paginationSolver } from 'src/common/utils/pagination.util';
 
 @Injectable({ scope: Scope.REQUEST })
 export class UserService {
@@ -224,7 +226,83 @@ export class UserService {
     };
   }
 
-  find() {
-    return this.userRepository.find({});
+  async find(paginationDto: PaginationDto) {
+    const { limit, page, skip } = paginationSolver(paginationDto);
+    const [users, count] = await this.userRepository.findAndCount({
+      where: {},
+      skip,
+      take: limit,
+    });
+    return {
+      pagination: paginationGenerator(count, page, limit),
+      users,
+    };
+  }
+
+  async followers(paginationDto: PaginationDto) {
+    const { limit, page, skip } = paginationSolver(paginationDto);
+    const { id: userId } = this.request.user;
+    const [followers, count] = await this.followRepository.findAndCount({
+      where: { followingId: userId },
+      relations: {
+        follower: {
+          profile: true,
+        },
+      },
+      select: {
+        id: true,
+        follower: {
+          id: true,
+          username: true,
+          profile: {
+            id: true,
+            nick_name: true,
+            bio: true,
+            image_profile: true,
+            bg_image: true,
+          },
+        },
+      },
+      skip,
+      take: limit,
+    });
+    return {
+      pagination: paginationGenerator(count, page, limit),
+      followers,
+    };
+  }
+  async following(paginationDto: PaginationDto) {
+    const { limit, page, skip } = paginationSolver(paginationDto);
+    const { id: userId } = this.request.user;
+    const [following, count] = await this.followRepository.findAndCount({
+      where: {
+        followerId: userId,
+      },
+      relations: {
+        following: {
+          profile: true,
+        },
+      },
+      select: {
+        id: true,
+        following: {
+          id: true,
+          username: true,
+          profile: {
+            id: true,
+            nick_name: true,
+            bio: true,
+            image_profile: true,
+            bg_image: true,
+          },
+        },
+      },
+      skip,
+      take: limit,
+    });
+    return {
+      pagination: paginationGenerator(count, page, limit),
+      following,
+    };
   }
 }

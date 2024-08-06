@@ -12,6 +12,7 @@ import {
   Post,
   Param,
   ParseIntPipe,
+  Query,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { ApiBearerAuth, ApiConsumes, ApiParam, ApiTags } from '@nestjs/swagger';
@@ -29,6 +30,8 @@ import { CookiesOptionsToken } from 'src/common/utils/cookie.util';
 import { PublicMessage } from 'src/common/enums/message.enum';
 import { CheckOtpDto } from '../auth/dto/auth.dto';
 import { AuthDecorator } from 'src/common/decorators/auth.decorator';
+import { Pagination } from 'src/common/decorators/pagination.decorator';
+import { PaginationDto } from 'src/common/dtos/pagination.dto';
 
 @Controller('user')
 @ApiTags('User')
@@ -72,10 +75,22 @@ export class UserController {
   }
 
   @Get('/list')
-  find() {
-    return this.userService.find();
+  @Pagination()
+  find(@Query() paginationDto: PaginationDto) {
+    return this.userService.find(paginationDto);
   }
 
+  @Get('/followers')
+  @Pagination()
+  followers(@Query() paginationDto: PaginationDto) {
+    return this.userService.followers(paginationDto);
+  }
+
+  @Get('/following')
+  @Pagination()
+  following(@Query() paginationDto: PaginationDto) {
+    return this.userService.following(paginationDto);
+  }
   @Patch('/change-email')
   @ApiConsumes(SwaggerConsumes.UrlEncoded, SwaggerConsumes.Json)
   async changeEmail(@Body() emailDto: ChangeEmailDto, @Res() res: Response) {
