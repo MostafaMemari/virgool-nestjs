@@ -44,11 +44,11 @@ export class AuthService {
     switch (type) {
       case AuthType.Login:
         result = await this.login(method, username);
-        await this.sendOtp(method, username, result.code);
+        // await this.sendOtp(method, username, result.code);
         return this.sendResponse(res, result);
       case AuthType.Register:
         result = await this.register(method, username);
-        await this.sendOtp(method, username, result.code);
+        // await this.sendOtp(method, username, result.code);
         return this.sendResponse(res, result);
       default:
         throw new UnauthorizedException();
@@ -95,11 +95,12 @@ export class AuthService {
     }
   }
   async sendResponse(res: Response, result: AuthResponse) {
-    const { token } = result;
+    const { token, code } = result;
 
     res.cookie(CookieKeys.OTP, token, CookiesOptionsToken());
     res.json({
       message: PublicMessage.SendOtp,
+      code,
     });
   }
   async saveOtp(userId: number, method: AuthMethod) {

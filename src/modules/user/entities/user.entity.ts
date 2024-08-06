@@ -8,6 +8,7 @@ import { BlogLikesEntity } from 'src/modules/blog/entities/like.entity';
 import { BlogBookmarkEntity } from 'src/modules/blog/entities/bookmark.entity';
 import { BlogCommentEntity } from 'src/modules/blog/entities/comment.entity';
 import { ImageEntity } from 'src/modules/image/entities/image.entity';
+import { Roles } from 'src/common/enums/role.enum';
 
 @Entity(EntityName.User)
 export class UserEntity extends BaseEntity {
@@ -19,6 +20,10 @@ export class UserEntity extends BaseEntity {
 
   @Column({ unique: true, nullable: true })
   email: string;
+
+  @Column({ default: Roles.User })
+  role: string;
+
   @Column({ type: 'varchar', nullable: true })
   new_email: string | null;
   @Column({ nullable: true })
